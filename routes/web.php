@@ -16,3 +16,7 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('welcome');
 });
+
+Route::get("/postcodes", "PostcodeController@postcodes");
+Route::get("/locations/{postcode}/{filter?}", "PostcodeController@locations");
+Route::get("/report/{pdf?}", "PostcodeController@reports");
