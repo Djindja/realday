@@ -3,14 +3,15 @@
 namespace App\Http\Controllers;
 
 use Response;
-use App\Models\Postcode;
-use App\Models\Busstop;
-use App\Models\Address;
+use App\Models\User;
 use App\Models\House;
 use App\Models\School;
-use App\Models\User;
-use App\Helpers\User as UserHelper;
+use App\Models\Busstop;
+use App\Models\Address;
+use App\Models\Postcode;
+use App\Helpers\PropertyType;
 use Illuminate\Support\Facades\DB;
+use App\Helpers\User as UserHelper;
 
 class PostcodeController extends Controller
 {
@@ -40,7 +41,7 @@ class PostcodeController extends Controller
     }
 
     /**
-     * Get locations
+     * Get locations (bus, school, address)
      *
      * @return Response
      */
@@ -75,31 +76,8 @@ class PostcodeController extends Controller
      */
     public function reports(?string $pdf = null)
     {
-        // $users = DB::table('users')
-        //             ->leftJoin('houses', 'users.id', '=', 'houses.user_id')
-        //             ->leftJoin('addresses', 'houses.postcode_id', '=', 'addresses.postcode_id')
-        //             // ->leftJoin('likes', function($join) {
-        //             //     $join->on('users.id', '=', 'likes.a')
-        //             //     ->where('likes.like', '>', 0);
-        //             // })
-        //             ->leftJoin('people', 'users.id', '=', 'people.user_id')
-        //             ->leftJoin('chats', 'users.id', '=', 'chats.from')
-        //             ->select('users.id as userId', DB::raw("CONCAT(users.name,' ',users.surname) as fullName"), 'houses.id as houseId',
-        //             'houses.propertytype as propertyType', 'addresses.postcode_id as postcode', 'addresses.district', 'addresses.locality', 'addresses.street', 'addresses.site', 'addresses.site_number as siteNumber',
-        //             'addresses.site_description as desc', 'addresses.site_subdescription as sub',
-        //             // DB::raw('likes.like as likes'),
-        //             DB::raw('COUNT(people.user_id) as numOfPeople'),
-        //             DB::raw('COUNT(chats.from) as numOfChats'))
-        //             ->having('people.sex', 'M')
-        //             ->andHaving('people.age', '>', 45)
-        //             ->limit(1)
-        //             ->groupBy('userId','houseId', 'addresses.district', 'addresses.locality', 'addresses.street', 'addresses.site', 'siteNumber', 'desc', 'sub')
-        //             ->get();
-
         $users = User::limit(50)->get();
-        $o = [
-            "userId" => ''
-        ];
+        $o = [];
 
         $resp = [];
 
@@ -107,27 +85,48 @@ class PostcodeController extends Controller
             $o["userId"] = $user->id;
             $o["fullName"] = $user->name . " " . $user->surname;
             $o["houseId"] = $user->house->id;
-            $o["property_type"] = $user->house->propertytype;
-            $o["likesA"] = $user->likesA->where('like', 1)->count();
-            $o["likesB"] = $user->likesB->where('like', 1)->count();
-            $o["listIds"] = UserHelper::returnListIds($user->likesA->where('like', 1));
-            $o["matching"] = $user->matching();
-            $o["matchingIds"] = implode(", ", $user->matchIds());
-            $o["differentChats"] = $user->differentChats();
-            $o["unansweredChats"] = $user->unansweredChats();
-            $o["people"] = $user->people->count();
-            $o["peopleOlder45"] = $user->people->where('sex', 'M')->where('age', '>', 45)->count();
+            $o["propertyType"] = PropertyType::propertyTypeConvert($user->house->propertytype);
             $o["postcodeID"] = $user->house->address->postcode_id;
             $o["district"] = $user->house->address->district;
             $o["locality"] = $user->house->address->locality;
             $o["street"] = $user->house->address->street;
             $o["site"] = $user->house->address->site;
+            $o["siteNumber"] = $user->house->address->site_number;
+            $o["siteDescription"] = $user->house->address->site_description;
+            $o["siteSubdescription"] = $user->house->address->site_subdescription;
 
+            $o["likesA"] = $user->likesA->where('like', 1)->count();
+            $o["likeIds"] = UserHelper::returnListIds($user->likesA->where('like', 1));
+            $o["likesB"] = $user->likesB->where('like', 1)->count();
+
+            $o["matching"] = $user->matching();
+            $o["matchingIds"] = implode(", ", $user->matchIds());
+            $o["differentChats"] = $user->differentChats();
+            $o["unansweredChats"] = $user->unansweredChats();
+            $o["numberOfPeople"] = $user->people->count();
+            $o["peopleOlder45"] = $user->people->where('sex', 'M')->where('age', '>', 45)->count();
             $resp[] = $o;
         }
+
+        if ($pdf == 1) {
+            echo "<table><tr><th>User ID</th><th>Full Name</th><th>House ID</th><th>Property Type</th><th>Postcode ID</th><th>District</th><th>Locality</th>
+            <th>Street</th><th>Site</th><th>Site Number</th><th>Site Description</th><th>Site Subdescription</th><th>Likes A</th><th>Like IDs</th>
+            <th>Likes B</th><th>Matching</th><th>Matching Ids</th><th>Different Chats</th><th>Unanswered Chats</th>
+            <th>Number od People</th><th>People older than 45</th></tr>";
+
+            foreach($resp as $item){
+                echo "<tr><td>".$item['userId']."</td><td>".$item['fullName']."</td><td>".$item['houseId']."</td><td>".$item['propertyType']."</td>
+                <td>".$item['postcodeID']."</td><td>".$item['district']."</td><td>".$item['locality']."</td><td>".$item['street']."</td><td>".$item['site']."</td>
+                <td>".$item['siteNumber']."</td><td>".$item['siteDescription']."</td><td>".$item['siteSubdescription']."</td><td>".$item['likesA']."</td>
+                <td>".$item['likeIds']."</td><td>".$item['likesB']."</td><td>".$item['matching']."</td><td>".$item['matchingIds']."</td>
+                <td>".$item['differentChats']."</td><td>".$item['unansweredChats']."</td><td>".$item['numberOfPeople']."</td><td>".$item['peopleOlder45']."</td></tr>";
+            }
+
+            echo "</table>";
+        }
+
 
         return Response::json($resp);
 
     }
-
 }

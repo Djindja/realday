@@ -7,6 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class Busstop extends Model
 {
 
+    /**
+     * find closest busstops
+     */
     public static function findClosest($latitude, $longitude, $limit = 5)
     {
         return self::selectRaw("id, name, lat, lon,

@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 
 class Postcode extends Model
 {
+    /**
+     * find postcodes in radius
+     */
     public static function findInRadius($latitude, $longitude, $radius = 10 )
     {
         return self::selectRaw("id, postcode, latitude, longitude,

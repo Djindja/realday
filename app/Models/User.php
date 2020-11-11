@@ -23,11 +23,11 @@ class User extends Model
 
     public function matching()
     {
-        $counter = Like::where('a', $this->id)->where('like', 1)->get();
+        $likes = Like::where('a', $this->id)->where('like', 1)->get();
 
         $i = 0;
-        foreach($counter as $c) {
-            $match = Like::where('b', $c->a)->where('like', 1)->first();
+        foreach($likes as $l) {
+            $match = Like::where('b', $l->a)->where('like', 1)->first();
 
             if($match != null) {
                 $i++;
@@ -40,11 +40,11 @@ class User extends Model
 
     public function matchIds()
     {
-        $counter = Like::where('a', $this->id)->where('like', 1)->get();
+        $likes = Like::where('a', $this->id)->where('like', 1)->get();
 
         $ids = [];
-        foreach($counter as $c) {
-            $match = Like::where('b', $c->a)->where('like', 1)->first();
+        foreach($likes as $l) {
+            $match = Like::where('b', $l->a)->where('like', 1)->first();
 
             if($match != null) {
                 $ids[] = $match->id;
@@ -61,12 +61,15 @@ class User extends Model
         return Chat::where('from', $this->id)->orWhere('to', $this->id)->count();
     }
 
+    /**
+     * get unanswered chats
+     */
     public function unansweredChats()
     {
-        $counter = Chat::where('from', $this->id)->get();
+        $chats = Chat::where('from', $this->id)->get();
 
         $count = 0;
-        foreach($counter as $c) {
+        foreach($chats as $c) {
             $match = Chat::where('to', $c->id)->first();
 
             if($match != null) {
@@ -74,7 +77,7 @@ class User extends Model
             }
         }
 
-        return count($counter) - $count;
+        return count($chats) - $count;
     }
 
     public function people()
