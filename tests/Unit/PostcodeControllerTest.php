@@ -59,6 +59,16 @@ class PostcodeControllerTest extends TestCase
     }
 
     /**
+     * Test testReportPdf200() - response 404 OK
+     */
+    public function testReportPdf404(): void
+    {
+        $response = $this->get('/report/2');
+
+        $response->assertStatus(404);
+    }
+
+    /**
      * Test testLocationsBus200() - response 200 OK
      */
     public function testLocationsBus200()
