@@ -19,4 +19,4 @@ Route::get('/', function () {
 
 Route::get("/postcodes", "PostcodeController@postcodes");
 Route::get("/locations/{postcode}/{filter?}", "PostcodeController@locations");
-Route::get("/report/{pdf?}", "PostcodeController@reports");
+Route::get("/report/{pdf?}", "PostcodeController@reports", function($pdf) {})->where(['pdf' => '[1]']);

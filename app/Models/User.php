@@ -21,6 +21,9 @@ class User extends Model
         return $this->hasMany(Like::class, 'b');
     }
 
+    /**
+     * get number of matchings
+     */
     public function matching()
     {
         $likes = Like::where('a', $this->id)->where('like', 1)->get();
@@ -38,6 +41,9 @@ class User extends Model
 
     }
 
+    /**
+     * get matching Ids
+     */
     public function matchIds()
     {
         $likes = Like::where('a', $this->id)->where('like', 1)->get();
@@ -54,7 +60,6 @@ class User extends Model
         return $ids;
 
     }
-
 
     public function differentChats()
     {

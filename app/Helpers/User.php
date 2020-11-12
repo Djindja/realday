@@ -4,6 +4,9 @@ namespace App\Helpers;
 
 class User {
 
+    /**
+     * return list of Ids
+     */
     public static function returnListIds($array) :string
     {
         $a = [];

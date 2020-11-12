@@ -74,7 +74,7 @@ class PostcodeControllerTest extends TestCase
         $this->assertCount(5, $response);
     }
 
-        /**
+    /**
      * Test testReportJson200() - response 200 OK
      */
     public function testReportJson200()
@@ -102,5 +102,22 @@ class PostcodeControllerTest extends TestCase
         $this->assertEquals(0, $response[0]['unansweredChats']);
         $this->assertEquals(2, $response[0]['numberOfPeople']);
         $this->assertEquals(0, $response[0]['peopleOlder45']);
+    }
+
+    /**
+     * Test testPostcodes200() - response 200 OK
+     */
+    public function testPostcodes200()
+    {
+        $response = $this->get('/postcodes')->decodeResponseJson();
+
+        $this->assertEquals('AB21 7NF', $response['AB21'][0]);
+        $this->assertEquals('AB21 9DG', $response['AB21'][1]);
+        $this->assertEquals('AB21 9HY', $response['AB21'][2]);
+        $this->assertEquals('AB21 9LL', $response['AB21'][3]);
+        $this->assertEquals('AB21 0WB', $response['AB21'][4]);
+        $this->assertEquals('AB21 0YG', $response['AB21'][5]);
+        $this->assertEquals('AB21 7BD', $response['AB21'][6]);
+        $this->assertEquals('AB21 0SR', $response['AB21'][7]);
     }
 }

@@ -70,7 +70,7 @@ class PostcodeController extends Controller
     }
 
     /**
-     * Get reports
+     * Get reports (with pdf)
      *
      * @return Response
      */
@@ -108,25 +108,72 @@ class PostcodeController extends Controller
             $resp[] = $o;
         }
 
-        if ($pdf == 1) {
-            echo "<table><tr><th>User ID</th><th>Full Name</th><th>House ID</th><th>Property Type</th><th>Postcode ID</th><th>District</th><th>Locality</th>
-            <th>Street</th><th>Site</th><th>Site Number</th><th>Site Description</th><th>Site Subdescription</th><th>Likes A</th><th>Like IDs</th>
-            <th>Likes B</th><th>Matching</th><th>Matching Ids</th><th>Different Chats</th><th>Unanswered Chats</th>
-            <th>Number od People</th><th>People older than 45</th></tr>";
-
-            foreach($resp as $item){
-                echo "<tr><td>".$item['userId']."</td><td>".$item['fullName']."</td><td>".$item['houseId']."</td><td>".$item['propertyType']."</td>
-                <td>".$item['postcodeID']."</td><td>".$item['district']."</td><td>".$item['locality']."</td><td>".$item['street']."</td><td>".$item['site']."</td>
-                <td>".$item['siteNumber']."</td><td>".$item['siteDescription']."</td><td>".$item['siteSubdescription']."</td><td>".$item['likesA']."</td>
-                <td>".$item['likeIds']."</td><td>".$item['likesB']."</td><td>".$item['matching']."</td><td>".$item['matchingIds']."</td>
-                <td>".$item['differentChats']."</td><td>".$item['unansweredChats']."</td><td>".$item['numberOfPeople']."</td><td>".$item['peopleOlder45']."</td></tr>";
-            }
-
-            echo "</table>";
+        if ($pdf == null) {
+            return Response::json($resp);
         }
 
+        if ($pdf == 1) {
+            $mpdf = new \Mpdf\Mpdf();
 
-        return Response::json($resp);
+            $mpdf->WriteHTML("
+                <table>
+                    <tr>
+                        <th>User ID</th>
+                        <th>Full Name</th>
+                        <th>House ID</th>
+                        <th>Property Type</th>
+                        <th>Postcode ID</th>
+                        <th>District</th>
+                        <th>Locality</th>
+                        <th>Street</th>
+                        <th>Site</th>
+                        <th>Site Number</th>
+                        <th>Site Description</th>
+                        <th>Site Subdescription</th>
+                        <th>Likes A</th>
+                        <th>Like IDs</th>
+                        <th>Likes B</th>
+                        <th>Matching</th>
+                        <th>Matching Ids</th>
+                        <th>Different Chats</th>
+                        <th>Unanswered Chats</th>
+                        <th>Number od People</th>
+                        <th>People older than 45</th>
+                    </tr>
+                ");
+
+            foreach($resp as $item){
+                $mpdf->WriteHTML("
+                    <tr>
+                        <td>".$item['userId']."</td>
+                        <td>".$item['fullName']."</td>
+                        <td>".$item['houseId']."</td>
+                        <td>".$item['propertyType']."</td>
+                        <td>".$item['postcodeID']."</td>
+                        <td>".$item['district']."</td>
+                        <td>".$item['locality']."</td>
+                        <td>".$item['street']."</td>
+                        <td>".$item['site']."</td>
+                        <td>".$item['siteNumber']."</td>
+                        <td>".$item['siteDescription']."</td>
+                        <td>".$item['siteSubdescription']."</td>
+                        <td>".$item['likesA']."</td>
+                        <td>".$item['likeIds']."</td>
+                        <td>".$item['likesB']."</td>
+                        <td>".$item['matching']."</td>
+                        <td>".$item['matchingIds']."</td>
+                        <td>".$item['differentChats']."</td>
+                        <td>".$item['unansweredChats']."</td>
+                        <td>".$item['numberOfPeople']."</td>
+                        <td>".$item['peopleOlder45']."</td>
+                    </tr>
+                ");
+            }
+
+            $mpdf->WriteHTML("</table>");
+
+            return $mpdf->Output();
+        }
 
     }
 }
